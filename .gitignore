@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Testing
+/coverage
+
+# Production builds
+/build
+dist/
+
+# Environment files
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+
+# SSH signing
+.ssh_commit_key
+.ssh_commit_key.pub
+.allowed_signers
+
+# Development artifacts
+.emergent/
+scripts/
+.commit_schedule.json
