@@ -2,13 +2,29 @@ name: Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      network:
+        description: 'Network'
+        required: true
+        default: 'baseSepolia'
+        type: choice
+        options:
+          - baseSepolia
+          - baseMainnet
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npx hardhat run scripts/deploy.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Deploy contracts
+        run: |
+          npm install
+          npx hardhat compile
+          npx hardhat run scripts/deploy.js --network ${{ github.event.inputs.network }}
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
