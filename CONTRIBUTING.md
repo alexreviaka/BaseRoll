@@ -1,27 +1,26 @@
 # Contributing to BaseRoll
 
-Thank you for your interest in contributing to BaseRoll!
+Thank you for your interest in contributing!
 
 ## Development Setup
 
-1. Clone the repository
-2. Install dependencies:
-   - Contracts: `npm install`
-   - Backend: `pip install -r backend/requirements.txt`
-   - Frontend: `cd frontend && yarn install`
-
-## Running Tests
-
+1. Fork the repository
+2. Clone your fork
+3. Install dependencies:
 ```bash
-# Smart contracts
-npx hardhat test
-
-# Backend
-pytest backend/
-
-# Frontend
-cd frontend && yarn test
+npm install
+cd backend && pip install -r requirements.txt
+cd frontend && yarn install
 ```
+
+## Making Changes
+
+1. Create a feature branch
+2. Make your changes
+3. Write tests
+4. Run tests: `npm test`
+5. Commit using Conventional Commits
+6. Push and create a Pull Request
 
 ## Code Style
 
@@ -29,14 +28,18 @@ cd frontend && yarn test
 - Python: PEP 8
 - JavaScript: ESLint configuration
 
-## Pull Requests
+## Testing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+All new features must include tests.
+
+## Pull Request Process
+
+1. Update documentation
+2. Add changelog entry
+3. Request review
+4. Address feedback
+5. Merge after approval
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under MIT License.
+By contributing, you agree your contributions will be licensed under MIT License.
