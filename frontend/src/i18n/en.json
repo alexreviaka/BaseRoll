@@ -1,0 +1,21 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "totalEmployees": "Total Employees",
+    "totalPayments": "Total Payments",
+    "monthlyPayroll": "Monthly Payroll"
+  },
+  "employees": {
+    "title": "Employees",
+    "addEmployee": "Add Employee",
+    "name": "Name",
+    "email": "Email",
+    "position": "Position",
+    "salary": "Salary"
+  },
+  "payments": {
+    "title": "Payments",
+    "process": "Process Payment",
+    "history": "Payment History"
+  }
+}
