@@ -2,19 +2,23 @@
   "name": "baseroll",
   "version": "0.2.0",
   "description": "Decentralized payroll system on Base",
+  "main": "index.js",
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
-    "deploy:mainnet": "hardhat run scripts/deploy.js --network baseMainnet"
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network baseMainnet",
+    "verify": "hardhat run scripts/verify.js"
   },
-  "keywords": ["ethereum", "base", "payroll", "web3"],
+  "keywords": ["ethereum", "base", "payroll", "web3", "defi"],
   "author": "Alex Reviaka",
   "license": "MIT",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "hardhat": "^2.19.0",
-    "chai": "^4.3.10"
+    "chai": "^4.3.10",
+    "solidity-coverage": "^0.8.5"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
