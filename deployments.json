@@ -1,13 +1,13 @@
 {
   "baseSepolia": {
-    "timestamp": "2025-11-17T13:55:33.503Z",
+    "timestamp": "2025-11-17T14:17:35.791Z",
     "deployer": "0x537AA372Ce8367b1A998EBAa16aE4574EA006F00",
     "contracts": {
-      "PayrollImplementation": "0x7652855D75d45B5272bf10Af50d45236D3aFb0c6",
-      "PayrollFactoryImplementation": "0xc0592f640ebe24E4Ce72990ec4b5c01DD45a6e09",
-      "PayrollFactoryProxy": "0x083cEC90B0182E3d8EcdfbEe018B01E603Fbe3Eb",
-      "EmployeeRegistryImplementation": "0xb32E2DFFF59807084B5b0e33ebd7fFBa8b003197",
-      "EmployeeRegistryProxy": "0x3bBf876c2f1fDB9A227d0a8dE1526E9Ba8Ec3844"
+      "PayrollImplementation": "0xaAcac81acB5fBD882c5ca7F2414E7f56dee02233",
+      "PayrollFactoryImplementation": "0x21204E4accbf257c8617595d78A5ca0a54bAdfbF",
+      "PayrollFactoryProxy": "0x6b01B1C9983496262567ECEaC23b9298dc8fC65B",
+      "EmployeeRegistryImplementation": "0xfA520eBE50f134e1C5763fb2b05FE6987048ab4e",
+      "EmployeeRegistryProxy": "0x291899764188C7111F7534324fd376e153375C58"
     }
   },
   "baseMainnet": {}
