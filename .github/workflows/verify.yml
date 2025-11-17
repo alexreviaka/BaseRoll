@@ -1,0 +1,40 @@
+name: Verify Contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Network'
+        required: true
+        default: 'baseSepolia'
+        type: choice
+        options:
+          - baseSepolia
+          - baseMainnet
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Compile contracts
+        run: npx hardhat compile
+      
+      - name: Verify contracts
+        run: |
+          sleep 5
+          npx hardhat run scripts/verify.js --network ${{ github.event.inputs.network }}
+        env:
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
