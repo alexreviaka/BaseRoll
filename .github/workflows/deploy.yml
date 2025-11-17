@@ -32,6 +32,13 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
       
+      - name: Verify contracts
+        run: |
+          sleep 10
+          HARDHAT_NETWORK=${{ github.event.inputs.network }} node scripts/verify-manual.js
+        env:
+          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
+      
       - name: Commit deployment addresses
         run: |
           git config user.name "github-actions[bot]"
