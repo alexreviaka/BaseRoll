@@ -16,11 +16,20 @@ async function main() {
   console.log("Payroll implementation deployed to:", payrollImplAddress);
   
   const PayrollFactory = await ethers.getContractFactory("PayrollFactory");
-  console.log("Deploying PayrollFactory...");
-  const factory = await PayrollFactory.deploy(payrollImplAddress);
-  await factory.waitForDeployment();
-  const factoryAddress = await factory.getAddress();
-  console.log("PayrollFactory deployed to:", factoryAddress);
+  console.log("Deploying PayrollFactory implementation...");
+  const factoryImpl = await PayrollFactory.deploy();
+  await factoryImpl.waitForDeployment();
+  const factoryImplAddress = await factoryImpl.getAddress();
+  console.log("PayrollFactory implementation deployed to:", factoryImplAddress);
+
+  const ERC1967Proxy = await ethers.getContractFactory("ERC1967Proxy");
+  
+  const factoryInitData = factoryImpl.interface.encodeFunctionData("initialize", [payrollImplAddress, deployer.address]);
+  console.log("Deploying PayrollFactory proxy...");
+  const factoryProxy = await ERC1967Proxy.deploy(factoryImplAddress, factoryInitData);
+  await factoryProxy.waitForDeployment();
+  const factoryProxyAddress = await factoryProxy.getAddress();
+  console.log("PayrollFactory proxy deployed to:", factoryProxyAddress);
   
   const EmployeeRegistry = await ethers.getContractFactory("EmployeeRegistry");
   console.log("Deploying EmployeeRegistry implementation...");
@@ -29,17 +38,17 @@ async function main() {
   const registryImplAddress = await registryImpl.getAddress();
   console.log("EmployeeRegistry implementation deployed to:", registryImplAddress);
   
-  const ERC1967Proxy = await ethers.getContractFactory("ERC1967Proxy");
-  const initData = registryImpl.interface.encodeFunctionData("initialize", [deployer.address]);
+  const registryInitData = registryImpl.interface.encodeFunctionData("initialize", [deployer.address]);
   console.log("Deploying EmployeeRegistry proxy...");
-  const registryProxy = await ERC1967Proxy.deploy(registryImplAddress, initData);
+  const registryProxy = await ERC1967Proxy.deploy(registryImplAddress, registryInitData);
   await registryProxy.waitForDeployment();
   const registryProxyAddress = await registryProxy.getAddress();
   console.log("EmployeeRegistry proxy deployed to:", registryProxyAddress);
 
   console.log("\n=== Deployment Summary ===");
   console.log("Payroll Implementation:", payrollImplAddress);
-  console.log("PayrollFactory:", factoryAddress);
+  console.log("PayrollFactory Implementation:", factoryImplAddress);
+  console.log("PayrollFactory Proxy:", factoryProxyAddress);
   console.log("EmployeeRegistry Implementation:", registryImplAddress);
   console.log("EmployeeRegistry Proxy:", registryProxyAddress);
   const deploymentsPath = path.join(__dirname, "..", "deployments.json");
@@ -53,7 +62,8 @@ async function main() {
     deployer: deployer.address,
     contracts: {
       PayrollImplementation: payrollImplAddress,
-      PayrollFactory: factoryAddress,
+      PayrollFactoryImplementation: factoryImplAddress,
+      PayrollFactoryProxy: factoryProxyAddress,
       EmployeeRegistryImplementation: registryImplAddress,
       EmployeeRegistryProxy: registryProxyAddress
     }

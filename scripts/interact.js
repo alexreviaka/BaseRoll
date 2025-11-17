@@ -22,7 +22,7 @@ async function main() {
   console.log("Using account:", deployer.address);
   console.log("Balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH\n");
 
-  const factoryAddress = networkDeployments.contracts.PayrollFactory;
+  const factoryAddress = networkDeployments.contracts.PayrollFactoryProxy || networkDeployments.contracts.PayrollFactory;
   const registryProxyAddress = networkDeployments.contracts.EmployeeRegistryProxy;
 
   console.log("Factory:", factoryAddress);

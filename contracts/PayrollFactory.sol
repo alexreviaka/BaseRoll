@@ -2,17 +2,19 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./Payroll.sol";
 
-contract PayrollFactory is Ownable {
+contract PayrollFactory is Initializable, OwnableUpgradeable {
     address public payrollImplementation;
     address[] public allPayrolls;
     mapping(address => address[]) public companyPayrolls;
     
     event PayrollCreated(address indexed company, address payroll);
     
-    constructor(address _implementation) Ownable(msg.sender) {
+    function initialize(address _implementation, address _owner) public initializer {
+        __Ownable_init(_owner);
         payrollImplementation = _implementation;
     }
     
