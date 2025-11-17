@@ -42,5 +42,14 @@ typechain-types/
 
 # Development artifacts
 .emergent/
-scripts/
 .commit_schedule.json
+*_PLAN_*.md
+test_result.md
+
+# Exclude specific scripts used for git history manipulation
+scripts/create_*.sh
+scripts/create_*.py
+scripts/generate_*.py
+scripts/fix_*.py
+scripts/*_commits.sh
+scripts/*_commits.py
