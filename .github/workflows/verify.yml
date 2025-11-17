@@ -35,6 +35,6 @@ jobs:
       - name: Verify contracts
         run: |
           sleep 5
-          npx hardhat run scripts/verify.js --network ${{ github.event.inputs.network }}
+          HARDHAT_NETWORK=${{ github.event.inputs.network }} node scripts/verify-manual.js
         env:
           BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
