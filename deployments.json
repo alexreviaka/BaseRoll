@@ -1,4 +1,13 @@
 {
-  "baseSepolia": {},
+  "baseSepolia": {
+    "timestamp": "2025-11-17T12:41:00.000Z",
+    "deployer": "0xb537A8327cd8367b1A998Ebaa16a64576AE00bf00",
+    "contracts": {
+      "PayrollImplementation": "0xa5d5C9b858A728ff64B04b7937cDc3700fd4001",
+      "PayrollFactory": "0xfBaa883005d86d9241633043D64b965BC7206d8F",
+      "EmployeeRegistryImplementation": "0x1f656Ef8B3F719ef5a49a09e9CfA9E272E35e513",
+      "EmployeeRegistryProxy": "0xB5A56Cd891B96d4a77Bc4f0b29165600C177262E"
+    }
+  },
   "baseMainnet": {}
 }
