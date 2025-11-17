@@ -38,8 +38,5 @@ module.exports = {
         }
       }
     ]
-  },
-  sourcify: {
-    enabled: true
   }
 };
