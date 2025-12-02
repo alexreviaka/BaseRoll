@@ -4,13 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       network:
-        description: 'Network'
+        description: 'Target Network'
         required: true
-        default: 'baseSepolia'
         type: choice
         options:
-          - baseSepolia
-          - baseMainnet
+          - base_sepolia
+          - base_mainnet
+      dry_run:
+        description: 'Dry run (simulate deployment)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -19,30 +23,65 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: '18'
-      - name: Deploy contracts
+          ref: development
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run tests
+        run: forge test --match-contract BaseRollV1Test
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Deploy to ${{ github.event.inputs.network }}
         run: |
-          npm install
-          npx hardhat compile
-          npx hardhat run scripts/deploy.js --network ${{ github.event.inputs.network }}
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "🔍 Dry run mode - simulating deployment"
+            forge script script/DeployBaseRoll.s.sol:DeployBaseRoll \
+              --rpc-url ${{ github.event.inputs.network }}
+          else
+            echo "🚀 Deploying to ${{ github.event.inputs.network }}"
+            forge script script/DeployBaseRoll.s.sol:DeployBaseRoll \
+              --rpc-url ${{ github.event.inputs.network }} \
+              --broadcast \
+              --verify
+          fi
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
           BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-      
-      - name: Verify contracts
+          BASE_SEPOLIA_RPC: ${{ secrets.BASE_SEPOLIA_RPC }}
+          BASE_MAINNET_RPC: ${{ secrets.BASE_MAINNET_RPC }}
+
+      - name: Save deployment artifacts
+        if: github.event.inputs.dry_run == 'false'
         run: |
-          sleep 10
-          HARDHAT_NETWORK=${{ github.event.inputs.network }} node scripts/verify-manual.js
-        env:
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-      
-      - name: Commit deployment addresses
+          CHAIN_ID=${{ github.event.inputs.network == 'base_sepolia' && '84532' || '8453' }}
+          mkdir -p deployments
+          if [ -f "broadcast/DeployBaseRoll.s.sol/$CHAIN_ID/run-latest.json" ]; then
+            cp broadcast/DeployBaseRoll.s.sol/$CHAIN_ID/run-latest.json deployments/${{ github.event.inputs.network }}.json
+            echo "✅ Deployment artifacts saved"
+          else
+            echo "⚠️ No deployment artifacts found"
+          fi
+
+      - name: Commit deployment data
+        if: github.event.inputs.dry_run == 'false'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deployments.json
-          git diff --staged --quiet || git commit -m "chore: update deployment addresses for ${{ github.event.inputs.network }}"
-          git push
+          git config user.name "alexreviaka"
+          git config user.email "reviakaaliakseii@gmail.com"
+          git add deployments/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(deploy): ${{ github.event.inputs.network }} deployment $(date +%Y-%m-%d)"
+            git push origin development
+            echo "✅ Deployment data committed"
+          fi

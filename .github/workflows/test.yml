@@ -2,39 +2,51 @@ name: Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      verbosity:
+        description: 'Test verbosity level'
+        required: false
+        type: choice
+        default: 'normal'
+        options:
+          - normal
+          - verbose
+          - very_verbose
 
 jobs:
-  contracts:
+  test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    - name: Run contract tests
-      run: |
-        if [ -d "contracts" ] && [ -f "hardhat.config.js" ]; then
-          npm install
-          npx hardhat compile
-          npx hardhat test
-        else
-          echo "⚠️ Contract tests skipped - files not found"
-        fi
-    
-  backend:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Run backend tests
-      run: |
-        if [ -d "backend" ] && [ -f "backend/requirements.txt" ]; then
-          pip install -r backend/requirements.txt
-          pytest backend/ || echo "⚠️ Backend tests skipped"
-        else
-          echo "⚠️ Backend tests skipped - files not found"
-        fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run tests
+        run: |
+          case "${{ github.event.inputs.verbosity }}" in
+            verbose)
+              forge test -vv
+              ;;
+            very_verbose)
+              forge test -vvvv
+              ;;
+            *)
+              forge test -v
+              ;;
+          esac
+
+      - name: Generate gas report
+        run: forge test --gas-report
+
+      - name: Run coverage
+        run: forge coverage --report summary
+
+      - name: Run specific contract tests
+        run: forge test --match-contract BaseRollV1Test --summary

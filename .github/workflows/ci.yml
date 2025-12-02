@@ -2,34 +2,79 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [development, main]
   pull_request:
-    branches: [ main ]
+    branches: [development, main]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Repository structure check
-        run: |
-          echo "✅ Repository check passed"
-          echo "Project: BaseRoll"
-          echo "Commits: $(git log --oneline | wc -l)"
-  
-  contracts:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Check formatting
+        run: forge fmt --check
+
+  build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: '18'
-      - run: |
-          if [ -f "package.json" ]; then
-            npm ci
-            npx hardhat compile || echo "Compilation skipped"
-            npx hardhat test || echo "Tests skipped"
-          else
-            echo "⚠️ Package.json not found"
-          fi
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Check contract sizes
+        run: |
+          forge build --sizes | tee sizes.txt
+          echo "Contract sizes:"
+          cat sizes.txt
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run tests
+        run: forge test -vvv
+
+      - name: Generate gas report
+        run: forge test --gas-report
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Run coverage
+        run: forge coverage --report summary
