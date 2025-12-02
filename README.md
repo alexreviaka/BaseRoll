@@ -1,148 +1,89 @@
-# BaseRoll 🚀
+# BaseRoll
 
-Decentralized payroll system built on Base blockchain.
+**On-chain payroll management protocol for Base**
 
-## Features
+BaseRoll is a decentralized, upgradeable payroll protocol built on Base blockchain. It enables organizations to manage employee records, track salaries, and execute automated USDC payments on-chain with full transparency and auditability.
 
-- 🏢 **Company Management**: Register and manage your company on-chain
-- 👥 **Employee Onboarding**: Add employees with their wallet addresses
-- 💰 **Automated Payments**: Schedule and process payments automatically
-- 🪙 **Multi-Token Support**: Pay in ETH, USDC, DAI, or any ERC-20
-- 📊 **Analytics Dashboard**: Track payments, employees, and metrics
-- 🔗 **Base Pay Integration**: Seamless integration with Base Pay
-- ⚡ **Upgradeable Contracts**: Proxy pattern for future improvements
+## What is BaseRoll?
 
-## Tech Stack
+BaseRoll provides companies and DAOs with a trustless, blockchain-native solution for payroll management. Instead of relying on traditional payroll providers, organizations can:
 
-**Smart Contracts**
-- Solidity 0.8.20
-- Hardhat
-- OpenZeppelin (Upgradeable)
+- Register their company on Base with full ownership
+- Onboard employees with wallet addresses and salary definitions
+- Track employment records immutably on-chain
+- Automate recurring payments using smart contracts
+- Maintain complete transparency and audit trails
 
-**Backend**
-- FastAPI
-- MongoDB
-- Web3.py
+All data lives on Base blockchain, making it censorship-resistant, globally accessible, and verifiable by anyone.
 
-**Frontend**
-- React 18
-- Vite
-- Tailwind CSS
-- ethers.js
+## Key Features
 
-**Blockchain**
-- Base Mainnet (ChainID: 8453)
-- Base Sepolia (ChainID: 84532)
+- **Organization Management** - Register and manage your company on-chain with role-based access control
+- **Employee Registry** - Onboard employees with wallet addresses, base salary, and employment metadata
+- **Immutable Records** - All employee data and salary changes recorded permanently on Base
+- **Upgradeable Architecture** - UUPS proxy pattern allows protocol improvements without disruption
+- **Gas Optimized** - Custom errors and efficient storage patterns minimize transaction costs
+- **Event-Driven** - Rich event emissions for off-chain indexing and analytics
 
-## Quick Start
+## Use Cases
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- MongoDB
-- MetaMask wallet
+### For Startups & Small Businesses
+Run payroll fully on-chain without intermediaries. Pay employees in USDC on Base with low fees and instant settlement.
 
-### Installation
+### For DAOs & Protocol Teams
+Manage contributor compensation transparently. Every payment is publicly verifiable and immutably recorded.
 
-**1. Clone repository**
-```bash
-git clone https://github.com/alexreviaka/BaseRoll.git
-cd BaseRoll
-```
+### For Global Teams
+Eliminate currency conversion and bank delays. Pay international employees directly to their wallets, anywhere in the world.
 
-**2. Install contracts dependencies**
-```bash
-npm install
-npx hardhat compile
-```
+### For Crypto-Native Companies
+Build payroll into your existing Base infrastructure. No need for traditional banking rails or payroll providers.
 
-**3. Setup backend**
-```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your settings
-python main.py
-```
+## How It Works
 
-**4. Setup frontend**
-```bash
-cd frontend
-yarn install
-cp .env.example .env
-# Edit .env with your settings
-yarn dev
-```
+### 1. Register Your Organization
+Connect your wallet and register your company on Base. The smart contract assigns you as the organization owner with full admin rights.
 
-## Deployment
+### 2. Add Employees
+Onboard team members by entering their Base wallet addresses and annual salaries. Each employee gets a unique on-chain record.
 
-### Smart Contracts
+### 3. Manage Payroll
+View all employees, update salaries, or deactivate former team members. All changes are tracked on-chain with event logs.
 
-**Base Sepolia (Testnet)**
-```bash
-npx hardhat run scripts/deploy.js --network baseSepolia
-```
+### 4. Execute Payments
+When it's time to pay, the protocol calculates amounts and prepares transactions. Payments execute directly from your organization's wallet to employee wallets.
 
-**Base Mainnet**
-```bash
-npx hardhat run scripts/deploy.js --network baseMainnet
-```
+## Smart Contracts
 
-### Verification
-```bash
-npx hardhat verify --network baseSepolia CONTRACT_ADDRESS
-```
+**BaseRoll V1** is deployed on:
+- **Base Mainnet**: Coming soon
+- **Base Sepolia**: Coming soon
 
-## Documentation
+Contract architecture:
+- **UUPS Proxy Pattern** - Upgradeable without changing addresses
+- **Access Control** - Role-based permissions (ADMIN_ROLE, ORG_OWNER_ROLE)
+- **Storage Gaps** - 50-slot gap reserved for future upgrades
+- **Gas Optimized** - Custom errors instead of string reverts
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [API Documentation](docs/API.md)
-- [Base Pay Integration](docs/BASE_PAY.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [User Guide](docs/USER_GUIDE.md)
-- [FAQ](docs/FAQ.md)
+## Protocol Status
 
-## Testing
-
-**Smart Contracts**
-```bash
-npx hardhat test
-npx hardhat coverage
-```
-
-**Backend**
-```bash
-cd backend
-pytest
-```
-
-**Frontend**
-```bash
-cd frontend
-yarn test
-```
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md)
+BaseRoll V1 implements core organization and employee management functionality. Future versions will add:
+- Payroll run scheduling and batch processing
+- Base Pay integration for USDC payments
+- Bonus and adjustment system
+- Multi-token support
+- Analytics and reporting
 
 ## Security
 
-Report vulnerabilities to security@baseroll.io
+BaseRoll uses OpenZeppelin's audited upgradeable contracts and follows Solidity best practices. All code is open source and verifiable on Basescan.
 
-See [SECURITY.md](SECURITY.md) for details.
+For security concerns, please open an issue on GitHub.
 
 ## License
 
 MIT © 2025 BaseRoll
 
-## Links
-
-- Website: https://baseroll.io
-- Documentation: https://docs.baseroll.io
-- Twitter: https://twitter.com/baseroll
-- Discord: https://discord.gg/baseroll
-
 ---
 
-Built with ❤️ on Base
+Built on Base 🔵
