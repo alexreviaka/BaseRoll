@@ -40,25 +40,35 @@ jobs:
       - name: Build contracts
         run: forge build --sizes
 
+      - name: Set RPC URL
+        id: set_rpc
+        run: |
+          if [ "${{ github.event.inputs.network }}" = "base_sepolia" ]; then
+            echo "rpc_url=${{ secrets.BASE_SEPOLIA_RPC }}" >> $GITHUB_OUTPUT
+            echo "etherscan_url=https://api-sepolia.basescan.org/api" >> $GITHUB_OUTPUT
+          else
+            echo "rpc_url=${{ secrets.BASE_MAINNET_RPC }}" >> $GITHUB_OUTPUT
+            echo "etherscan_url=https://api.basescan.org/api" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy to ${{ github.event.inputs.network }}
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "🔍 Dry run mode - simulating deployment"
             forge script script/DeployBaseRoll.s.sol:DeployBaseRoll \
-              --rpc-url ${{ github.event.inputs.network }}
+              --rpc-url "${{ steps.set_rpc.outputs.rpc_url }}"
           else
             echo "🚀 Deploying to ${{ github.event.inputs.network }}"
             forge script script/DeployBaseRoll.s.sol:DeployBaseRoll \
-              --rpc-url ${{ github.event.inputs.network }} \
+              --rpc-url "${{ steps.set_rpc.outputs.rpc_url }}" \
               --broadcast \
-              --verify
+              --verify \
+              --etherscan-api-key "${{ secrets.BASESCAN_API_KEY }}" \
+              --verifier-url "${{ steps.set_rpc.outputs.etherscan_url }}"
           fi
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-          BASE_SEPOLIA_RPC: ${{ secrets.BASE_SEPOLIA_RPC }}
-          BASE_MAINNET_RPC: ${{ secrets.BASE_MAINNET_RPC }}
 
       - name: Save deployment artifacts
         if: github.event.inputs.dry_run == 'false'
