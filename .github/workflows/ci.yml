@@ -30,9 +30,6 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Install dependencies
-        run: forge install
-
       - name: Build contracts
         run: forge build --sizes
 
@@ -53,9 +50,6 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Install dependencies
-        run: forge install
-
       - name: Run tests
         run: forge test -vvv
 
@@ -72,9 +66,6 @@ jobs:
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Install dependencies
-        run: forge install
 
       - name: Run coverage
         run: forge coverage --report summary

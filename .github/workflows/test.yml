@@ -25,9 +25,6 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Install dependencies
-        run: forge install
-
       - name: Run tests
         run: |
           case "${{ github.event.inputs.verbosity }}" in
@@ -47,6 +44,3 @@ jobs:
 
       - name: Run coverage
         run: forge coverage --report summary
-
-      - name: Run specific contract tests
-        run: forge test --match-contract BaseRollV1Test --summary
