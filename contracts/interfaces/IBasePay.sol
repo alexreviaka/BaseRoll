@@ -7,7 +7,9 @@ interface IBasePay {
         uint256 amount,
         address token,
         bytes calldata metadata
-    ) external returns (bytes32 paymentId);
-    
+    )
+        external
+        returns (bytes32 paymentId);
+
     function getPaymentStatus(bytes32 paymentId) external view returns (uint8 status);
 }

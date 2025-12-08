@@ -8,12 +8,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-contract BaseRollV2 is
-    Initializable,
-    UUPSUpgradeable,
-    AccessControlUpgradeable,
-    ReentrancyGuardUpgradeable
-{
+contract BaseRollV2 is Initializable, UUPSUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -126,41 +121,20 @@ contract BaseRollV2 is
     event OrganizationRegistered(uint256 indexed orgId, address indexed owner, string name);
     event OrganizationMetadataUpdated(uint256 indexed orgId, string metadata);
 
-    event EmployeeAdded(
-        uint256 indexed orgId,
-        uint256 indexed employeeId,
-        address indexed primaryWallet,
-        string role
-    );
+    event EmployeeAdded(uint256 indexed orgId, uint256 indexed employeeId, address indexed primaryWallet, string role);
     event EmployeeUpdated(uint256 indexed employeeId, string metadata);
-    event EmployeeStatusChanged(
-        uint256 indexed employeeId,
-        EmployeeStatus oldStatus,
-        EmployeeStatus newStatus
-    );
+    event EmployeeStatusChanged(uint256 indexed employeeId, EmployeeStatus oldStatus, EmployeeStatus newStatus);
     event EmployeePayoutAddressesUpdated(uint256 indexed employeeId, address[] addresses);
 
     event CompensationProfileCreated(
-        uint256 indexed profileId,
-        uint256 indexed employeeId,
-        uint256 baseAmount,
-        uint256 effectiveFrom
+        uint256 indexed profileId, uint256 indexed employeeId, uint256 baseAmount, uint256 effectiveFrom
     );
     event CompensationProfileUpdated(uint256 indexed profileId, uint256 effectiveUntil);
 
-    event PayrollCycleCreated(
-        uint256 indexed cycleId,
-        uint256 indexed orgId,
-        uint256 startTime,
-        uint256 endTime
-    );
+    event PayrollCycleCreated(uint256 indexed cycleId, uint256 indexed orgId, uint256 startTime, uint256 endTime);
     event PayrollCycleExecuted(uint256 indexed cycleId, uint256 totalAmount);
     event PayrollCycleFinalized(uint256 indexed cycleId);
-    event EmployeePaymentProcessed(
-        uint256 indexed cycleId,
-        uint256 indexed employeeId,
-        uint256 amount
-    );
+    event EmployeePaymentProcessed(uint256 indexed cycleId, uint256 indexed employeeId, uint256 amount);
 
     error OrganizationAlreadyExists();
     error OrganizationNotFound();
@@ -192,10 +166,7 @@ contract BaseRollV2 is
         _grantRole(ADMIN_ROLE, admin);
     }
 
-    function registerOrganization(
-        string calldata name,
-        string calldata metadata
-    ) external returns (uint256) {
+    function registerOrganization(string calldata name, string calldata metadata) external returns (uint256) {
         if (_ownerToOrg[msg.sender] != 0) revert OrganizationAlreadyExists();
 
         unchecked {
@@ -205,12 +176,7 @@ contract BaseRollV2 is
         uint256 orgId = _orgIdCounter;
 
         _organizations[orgId] = Organization({
-            id: orgId,
-            owner: msg.sender,
-            name: name,
-            metadata: metadata,
-            createdAt: block.timestamp,
-            active: true
+            id: orgId, owner: msg.sender, name: name, metadata: metadata, createdAt: block.timestamp, active: true
         });
 
         _ownerToOrg[msg.sender] = orgId;
@@ -238,7 +204,10 @@ contract BaseRollV2 is
         address[] calldata payoutAddresses,
         uint256[] calldata payoutPercentages,
         EmployeeMetadata calldata metadata
-    ) external returns (uint256) {
+    )
+        external
+        returns (uint256)
+    {
         if (primaryWallet == address(0)) revert InvalidAddress();
 
         Organization storage org = _organizations[orgId];
@@ -257,7 +226,7 @@ contract BaseRollV2 is
                 totalPercentage += payoutPercentages[i];
             }
 
-            if (totalPercentage != 100_00) revert InvalidPayoutConfiguration();
+            if (totalPercentage != 10_000) revert InvalidPayoutConfiguration();
         }
 
         unchecked {
@@ -286,10 +255,7 @@ contract BaseRollV2 is
         return employeeId;
     }
 
-    function updateEmployeeMetadata(
-        uint256 employeeId,
-        EmployeeMetadata calldata metadata
-    ) external {
+    function updateEmployeeMetadata(uint256 employeeId, EmployeeMetadata calldata metadata) external {
         Employee storage employee = _employees[employeeId];
 
         if (employee.id == 0) revert EmployeeNotFound();
@@ -307,7 +273,9 @@ contract BaseRollV2 is
         uint256 employeeId,
         address[] calldata payoutAddresses,
         uint256[] calldata payoutPercentages
-    ) external {
+    )
+        external
+    {
         Employee storage employee = _employees[employeeId];
 
         if (employee.id == 0) revert EmployeeNotFound();
@@ -326,7 +294,7 @@ contract BaseRollV2 is
                 totalPercentage += payoutPercentages[i];
             }
 
-            if (totalPercentage != 100_00) revert InvalidPayoutConfiguration();
+            if (totalPercentage != 10_000) revert InvalidPayoutConfiguration();
         }
 
         employee.payoutAddresses = payoutAddresses;
@@ -336,10 +304,7 @@ contract BaseRollV2 is
         emit EmployeePayoutAddressesUpdated(employeeId, payoutAddresses);
     }
 
-    function setEmployeeStatus(
-        uint256 employeeId,
-        EmployeeStatus newStatus
-    ) external {
+    function setEmployeeStatus(uint256 employeeId, EmployeeStatus newStatus) external {
         Employee storage employee = _employees[employeeId];
 
         if (employee.id == 0) revert EmployeeNotFound();
@@ -367,7 +332,10 @@ contract BaseRollV2 is
         uint256 employeeId,
         CompensationComponent calldata compensation,
         uint256 effectiveFrom
-    ) external returns (uint256) {
+    )
+        external
+        returns (uint256)
+    {
         Employee storage employee = _employees[employeeId];
 
         if (employee.id == 0) revert EmployeeNotFound();
@@ -409,12 +377,7 @@ contract BaseRollV2 is
 
         _employeeCompensations[employeeId].push(profileId);
 
-        emit CompensationProfileCreated(
-            profileId,
-            employeeId,
-            compensation.baseAmount,
-            effectiveFrom
-        );
+        emit CompensationProfileCreated(profileId, employeeId, compensation.baseAmount, effectiveFrom);
 
         return profileId;
     }
@@ -425,7 +388,10 @@ contract BaseRollV2 is
         uint256 startTime,
         uint256 endTime,
         address paymentToken
-    ) external returns (uint256) {
+    )
+        external
+        returns (uint256)
+    {
         Organization storage org = _organizations[orgId];
 
         if (org.id == 0) revert OrganizationNotFound();
@@ -469,13 +435,15 @@ contract BaseRollV2 is
 
             uint256 totalAmount = activeComp.compensation.baseAmount + activeComp.compensation.bonusAmount;
 
-            _cycleEmployees[cycleId].push(PayrollCycleEmployee({
-                employeeId: employeeIds[i],
-                baseAmount: activeComp.compensation.baseAmount,
-                bonusAmount: activeComp.compensation.bonusAmount,
-                totalAmount: totalAmount,
-                paid: false
-            }));
+            _cycleEmployees[cycleId].push(
+                PayrollCycleEmployee({
+                    employeeId: employeeIds[i],
+                    baseAmount: activeComp.compensation.baseAmount,
+                    bonusAmount: activeComp.compensation.bonusAmount,
+                    totalAmount: totalAmount,
+                    paid: false
+                })
+            );
         }
 
         emit PayrollCycleCreated(cycleId, orgId, startTime, endTime);
@@ -517,7 +485,7 @@ contract BaseRollV2 is
 
             if (employee.payoutAddresses.length > 0) {
                 for (uint256 j = 0; j < employee.payoutAddresses.length; j++) {
-                    uint256 payoutAmount = (amount * employee.payoutPercentages[j]) / 100_00;
+                    uint256 payoutAmount = (amount * employee.payoutPercentages[j]) / 10_000;
                     token.safeTransferFrom(msg.sender, employee.payoutAddresses[j], payoutAmount);
                 }
             } else {
@@ -557,14 +525,20 @@ contract BaseRollV2 is
     function _getActiveCompensation(
         uint256 employeeId,
         uint256 timestamp
-    ) internal view returns (CompensationProfile memory) {
+    )
+        internal
+        view
+        returns (CompensationProfile memory)
+    {
         uint256[] storage profiles = _employeeCompensations[employeeId];
 
         for (uint256 i = 0; i < profiles.length; i++) {
             CompensationProfile storage profile = _compensations[profiles[i]];
 
-            if (profile.effectiveFrom <= timestamp &&
-                (profile.effectiveUntil == 0 || profile.effectiveUntil > timestamp)) {
+            if (
+                profile.effectiveFrom <= timestamp
+                    && (profile.effectiveUntil == 0 || profile.effectiveUntil > timestamp)
+            ) {
                 return profile;
             }
         }
@@ -630,7 +604,11 @@ contract BaseRollV2 is
     function getActiveCompensation(
         uint256 employeeId,
         uint256 timestamp
-    ) external view returns (CompensationProfile memory) {
+    )
+        external
+        view
+        returns (CompensationProfile memory)
+    {
         return _getActiveCompensation(employeeId, timestamp);
     }
 
@@ -642,7 +620,7 @@ contract BaseRollV2 is
         return "2.0.0";
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) { }
 
     uint256[50] private __gap;
 }

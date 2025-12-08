@@ -33,15 +33,10 @@ contract BaseRollV2Test is Test {
     event OrganizationRegistered(uint256 indexed orgId, address indexed owner, string name);
     event EmployeeAdded(uint256 indexed orgId, uint256 indexed employeeId, address indexed primaryWallet, string role);
     event EmployeeStatusChanged(
-        uint256 indexed employeeId,
-        BaseRollV2.EmployeeStatus oldStatus,
-        BaseRollV2.EmployeeStatus newStatus
+        uint256 indexed employeeId, BaseRollV2.EmployeeStatus oldStatus, BaseRollV2.EmployeeStatus newStatus
     );
     event CompensationProfileCreated(
-        uint256 indexed profileId,
-        uint256 indexed employeeId,
-        uint256 baseAmount,
-        uint256 effectiveFrom
+        uint256 indexed profileId, uint256 indexed employeeId, uint256 baseAmount, uint256 effectiveFrom
     );
     event PayrollCycleCreated(uint256 indexed cycleId, uint256 indexed orgId, uint256 startTime, uint256 endTime);
     event PayrollCycleExecuted(uint256 indexed cycleId, uint256 totalAmount);
@@ -102,10 +97,7 @@ contract BaseRollV2Test is Test {
         uint256[] memory payoutPercentages = new uint256[](0);
 
         BaseRollV2.EmployeeMetadata memory metadata = BaseRollV2.EmployeeMetadata({
-            role: "Engineer",
-            department: "Engineering",
-            jurisdictionCode: "US",
-            customData: ""
+            role: "Engineer", department: "Engineering", jurisdictionCode: "US", customData: ""
         });
 
         uint256 employeeId = baseRoll.addEmployee(orgId, employee1, payoutAddresses, payoutPercentages, metadata);
@@ -126,14 +118,11 @@ contract BaseRollV2Test is Test {
         payoutAddresses[1] = payoutAddress2;
 
         uint256[] memory payoutPercentages = new uint256[](2);
-        payoutPercentages[0] = 70_00;
-        payoutPercentages[1] = 30_00;
+        payoutPercentages[0] = 7000;
+        payoutPercentages[1] = 3000;
 
         BaseRollV2.EmployeeMetadata memory metadata = BaseRollV2.EmployeeMetadata({
-            role: "Engineer",
-            department: "Engineering",
-            jurisdictionCode: "US",
-            customData: ""
+            role: "Engineer", department: "Engineering", jurisdictionCode: "US", customData: ""
         });
 
         uint256 employeeId = baseRoll.addEmployee(orgId, employee1, payoutAddresses, payoutPercentages, metadata);
@@ -141,9 +130,9 @@ contract BaseRollV2Test is Test {
         BaseRollV2.Employee memory emp = baseRoll.getEmployee(employeeId);
         assertEq(emp.payoutAddresses.length, 2);
         assertEq(emp.payoutAddresses[0], payoutAddress1);
-        assertEq(emp.payoutPercentages[0], 70_00);
+        assertEq(emp.payoutPercentages[0], 7000);
         assertEq(emp.payoutAddresses[1], payoutAddress2);
-        assertEq(emp.payoutPercentages[1], 30_00);
+        assertEq(emp.payoutPercentages[1], 3000);
 
         vm.stopPrank();
     }
@@ -156,14 +145,11 @@ contract BaseRollV2Test is Test {
         payoutAddresses[1] = payoutAddress2;
 
         uint256[] memory payoutPercentages = new uint256[](2);
-        payoutPercentages[0] = 60_00;
-        payoutPercentages[1] = 30_00;
+        payoutPercentages[0] = 6000;
+        payoutPercentages[1] = 3000;
 
         BaseRollV2.EmployeeMetadata memory metadata = BaseRollV2.EmployeeMetadata({
-            role: "Engineer",
-            department: "Engineering",
-            jurisdictionCode: "US",
-            customData: ""
+            role: "Engineer", department: "Engineering", jurisdictionCode: "US", customData: ""
         });
 
         vm.expectRevert(BaseRollV2.InvalidPayoutConfiguration.selector);
@@ -264,13 +250,8 @@ contract BaseRollV2Test is Test {
         vm.expectEmit(true, true, false, true);
         emit PayrollCycleCreated(1, orgId, startTime, endTime);
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         BaseRollV2.PayrollCycle memory cycle = baseRoll.getPayrollCycle(cycleId);
         assertEq(cycle.orgId, orgId);
@@ -305,13 +286,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         token.approve(address(baseRoll), 10_000 ether);
 
@@ -374,13 +350,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         uint256 totalRequired = 6000 ether + 4500 ether + 9000 ether;
 
@@ -403,14 +374,11 @@ contract BaseRollV2Test is Test {
         payoutAddresses[1] = payoutAddress2;
 
         uint256[] memory payoutPercentages = new uint256[](2);
-        payoutPercentages[0] = 70_00;
-        payoutPercentages[1] = 30_00;
+        payoutPercentages[0] = 7000;
+        payoutPercentages[1] = 3000;
 
         BaseRollV2.EmployeeMetadata memory metadata = BaseRollV2.EmployeeMetadata({
-            role: "Engineer",
-            department: "Engineering",
-            jurisdictionCode: "US",
-            customData: ""
+            role: "Engineer", department: "Engineering", jurisdictionCode: "US", customData: ""
         });
 
         uint256 employeeId = baseRoll.addEmployee(orgId, employee1, payoutAddresses, payoutPercentages, metadata);
@@ -429,13 +397,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         token.approve(address(baseRoll), 10_000 ether);
 
@@ -475,13 +438,8 @@ contract BaseRollV2Test is Test {
 
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         BaseRollV2.PayrollCycleEmployee[] memory cycleEmployees = baseRoll.getCycleEmployees(cycleId);
 
@@ -559,13 +517,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         BaseRollV2.PayrollCycleEmployee[] memory cycleEmployees = baseRoll.getCycleEmployees(cycleId);
 
@@ -592,13 +545,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         BaseRollV2.PayrollCycleEmployee[] memory cycleEmployees = baseRoll.getCycleEmployees(cycleId);
         assertEq(cycleEmployees.length, 0);
@@ -612,13 +560,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         baseRoll.executePayrollCycle(cycleId);
 
@@ -648,13 +591,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         token.approve(address(baseRoll), 10_000 ether);
         baseRoll.executePayrollCycle(cycleId);
@@ -688,13 +626,8 @@ contract BaseRollV2Test is Test {
         uint256 startTime = block.timestamp;
         uint256 endTime = startTime + 30 days;
 
-        uint256 cycleId = baseRoll.createPayrollCycle(
-            orgId,
-            BaseRollV2.PayrollPeriod.MONTHLY,
-            startTime,
-            endTime,
-            address(token)
-        );
+        uint256 cycleId =
+            baseRoll.createPayrollCycle(orgId, BaseRollV2.PayrollPeriod.MONTHLY, startTime, endTime, address(token));
 
         BaseRollV2.PayrollCycleEmployee[] memory cycleEmployees = baseRoll.getCycleEmployees(cycleId);
 
@@ -736,10 +669,12 @@ contract BaseRollV2Test is Test {
 
         baseRoll.createCompensationProfile(employeeId, comp2, time2);
 
-        BaseRollV2.CompensationProfile memory activeAtTime1 = baseRoll.getActiveCompensation(employeeId, time1 + 15 days);
+        BaseRollV2.CompensationProfile memory activeAtTime1 =
+            baseRoll.getActiveCompensation(employeeId, time1 + 15 days);
         assertEq(activeAtTime1.compensation.baseAmount, 5000 ether);
 
-        BaseRollV2.CompensationProfile memory activeAtTime2 = baseRoll.getActiveCompensation(employeeId, time2 + 15 days);
+        BaseRollV2.CompensationProfile memory activeAtTime2 =
+            baseRoll.getActiveCompensation(employeeId, time2 + 15 days);
         assertEq(activeAtTime2.compensation.baseAmount, 6000 ether);
 
         vm.stopPrank();
@@ -790,10 +725,7 @@ contract BaseRollV2Test is Test {
         uint256[] memory payoutPercentages = new uint256[](0);
 
         BaseRollV2.EmployeeMetadata memory metadata = BaseRollV2.EmployeeMetadata({
-            role: role,
-            department: "Engineering",
-            jurisdictionCode: "US",
-            customData: ""
+            role: role, department: "Engineering", jurisdictionCode: "US", customData: ""
         });
 
         return baseRoll.addEmployee(orgId, wallet, payoutAddresses, payoutPercentages, metadata);
