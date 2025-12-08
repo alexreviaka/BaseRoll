@@ -12,9 +12,6 @@ evm_version = "cancun"
 base_sepolia = "${BASE_SEPOLIA_RPC}"
 base_mainnet = "${BASE_MAINNET_RPC}"
 
-[etherscan]
-base_sepolia = { key = "${BASESCAN_API_KEY}", url = "https://api-sepolia.basescan.org/api" }
-base_mainnet = { key = "${BASESCAN_API_KEY}", url = "https://api.basescan.org/api" }
 
 [fmt]
 line_length = 120
