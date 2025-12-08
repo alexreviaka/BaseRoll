@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -70,12 +70,7 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
         uint256 orgId = _orgIdCounter;
 
         _organizations[orgId] = Organization({
-            id: orgId,
-            owner: msg.sender,
-            name: name,
-            metadata: metadata,
-            createdAt: block.timestamp,
-            active: true
+            id: orgId, owner: msg.sender, name: name, metadata: metadata, createdAt: block.timestamp, active: true
         });
 
         _ownerToOrg[msg.sender] = orgId;
@@ -114,12 +109,7 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
         uint256 employeeId = _employeeIdCounter;
 
         _employees[employeeId] = Employee({
-            id: employeeId,
-            orgId: orgId,
-            wallet: wallet,
-            baseSalary: baseSalary,
-            addedAt: block.timestamp,
-            active: true
+            id: employeeId, orgId: orgId, wallet: wallet, baseSalary: baseSalary, addedAt: block.timestamp, active: true
         });
 
         _orgEmployees[orgId].push(employeeId);
@@ -170,7 +160,7 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
         return "1.0.0";
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) { }
 
     uint256[50] private __gap;
 }

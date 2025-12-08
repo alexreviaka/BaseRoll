@@ -2,7 +2,6 @@
 pragma solidity 0.8.26;
 
 import "forge-std/Script.sol";
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 import "../contracts/BaseRollV2.sol";
 import "../contracts/BaseRollV1.sol";
 
