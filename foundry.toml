@@ -12,6 +12,10 @@ evm_version = "cancun"
 base_sepolia = "${BASE_SEPOLIA_RPC}"
 base_mainnet = "${BASE_MAINNET_RPC}"
 
+[etherscan]
+base_sepolia = { key = "${BASESCAN_API_KEY}" }
+base_mainnet = { key = "${BASESCAN_API_KEY}" }
+
 
 [fmt]
 line_length = 120
