@@ -1,5 +1,17 @@
 {
   "network": "base-mainnet",
   "chainId": 8453,
-  "deployments": []
+  "timestamp": "2025-12-09T08:39:00Z",
+  "contracts": {
+    "proxy": "0xb1dC73B70B876ce13b7a91C77df6f634FC89a87e",
+    "implementation": "0x2aD47bFC833d5B90540dfb5009414Ac5eF6bb36D",
+    "deployer": "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+  },
+  "version": "v2",
+  "verified": false,
+  "basescan": {
+    "proxy_url": "https://basescan.org/address/0xb1dC73B70B876ce13b7a91C77df6f634FC89a87e",
+    "implementation_url": "https://basescan.org/address/0x2aD47bFC833d5B90540dfb5009414Ac5eF6bb36D"
+  },
+  "notes": "Deployed successfully. Manual verification required due to Blockscout API issues."
 }
