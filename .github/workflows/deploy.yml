@@ -124,9 +124,9 @@ jobs:
       - name: Commit deployment data
         if: github.event.inputs.dry_run == 'false'
         run: |
-          git config user.name "alexreviaka"
-          git config user.email "reviakaaliakseii@gmail.com"
-          git add deployments/ broadcast/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deployments/
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
