@@ -35,6 +35,11 @@ cache/
 artifacts/
 typechain-types/
 
+# Foundry
+out/
+broadcast/
+!broadcast/*/dry-run/
+
 # SSH signing
 .ssh_commit_key
 .ssh_commit_key.pub

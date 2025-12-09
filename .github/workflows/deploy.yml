@@ -4,13 +4,33 @@ on:
   workflow_dispatch:
     inputs:
       network:
-        description: 'Network'
+        description: 'Target Network'
         required: true
-        default: 'baseSepolia'
         type: choice
         options:
-          - baseSepolia
-          - baseMainnet
+          - base_sepolia
+          - base_mainnet
+      version:
+        description: 'Contract Version'
+        required: true
+        type: choice
+        options:
+          - v2
+          - v1
+        default: v2
+      operation:
+        description: 'Operation Type'
+        required: true
+        type: choice
+        options:
+          - deploy
+          - upgrade
+        default: deploy
+      dry_run:
+        description: 'Dry run (simulate deployment)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -19,30 +39,96 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: '18'
-      - name: Deploy contracts
+          ref: development
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Run tests
+        run: forge test -vv
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Set RPC URL
+        id: set_rpc
         run: |
-          npm install
-          npx hardhat compile
-          npx hardhat run scripts/deploy.js --network ${{ github.event.inputs.network }}
+          if [ "${{ github.event.inputs.network }}" = "base_sepolia" ]; then
+            echo "rpc_url=${{ secrets.BASE_SEPOLIA_RPC }}" >> $GITHUB_OUTPUT
+          else
+            echo "rpc_url=${{ secrets.BASE_MAINNET_RPC }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: ${{ github.event.inputs.operation == 'deploy' && 'Deploy' || 'Upgrade' }} to ${{ github.event.inputs.network }}
+        run: |
+          # Determine script path based on operation and version
+          if [ "${{ github.event.inputs.operation }}" = "upgrade" ]; then
+            SCRIPT="script/UpgradeBaseRollV2.s.sol:UpgradeBaseRollV2"
+            OP_NAME="Upgrade"
+          else
+            if [ "${{ github.event.inputs.version }}" = "v2" ]; then
+              SCRIPT="script/DeployBaseRollV2.s.sol:DeployBaseRollV2"
+            else
+              SCRIPT="script/DeployBaseRoll.s.sol:DeployBaseRoll"
+            fi
+            OP_NAME="Deploy"
+          fi
+
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "🔍 Dry run mode - simulating $OP_NAME"
+            forge script $SCRIPT --rpc-url "${{ steps.set_rpc.outputs.rpc_url }}"
+          else
+            echo "🚀 ${OP_NAME}ing to ${{ github.event.inputs.network }}"
+            forge script $SCRIPT \
+              --rpc-url "${{ steps.set_rpc.outputs.rpc_url }}" \
+              --broadcast \
+              --verify \
+              --etherscan-api-key "${{ secrets.BASESCAN_API_KEY }}" \
+              -vvvv
+          fi
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-      
-      - name: Verify contracts
+          DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
+          PROXY_ADDRESS: ${{ secrets.PROXY_ADDRESS }}
+          ADMIN_ADDRESS: ${{ secrets.ADMIN_ADDRESS }}
+
+      - name: Save deployment artifacts
+        if: github.event.inputs.dry_run == 'false'
         run: |
-          sleep 10
-          HARDHAT_NETWORK=${{ github.event.inputs.network }} node scripts/verify-manual.js
-        env:
-          BASESCAN_API_KEY: ${{ secrets.BASESCAN_API_KEY }}
-      
-      - name: Commit deployment addresses
+          CHAIN_ID=${{ github.event.inputs.network == 'base_sepolia' && '84532' || '8453' }}
+          mkdir -p deployments
+
+          # Find the broadcast file based on operation
+          if [ "${{ github.event.inputs.operation }}" = "upgrade" ]; then
+            BROADCAST_DIR="broadcast/UpgradeBaseRollV2.s.sol"
+          elif [ "${{ github.event.inputs.version }}" = "v2" ]; then
+            BROADCAST_DIR="broadcast/DeployBaseRollV2.s.sol"
+          else
+            BROADCAST_DIR="broadcast/DeployBaseRoll.s.sol"
+          fi
+
+          if [ -f "$BROADCAST_DIR/$CHAIN_ID/run-latest.json" ]; then
+            cp "$BROADCAST_DIR/$CHAIN_ID/run-latest.json" "deployments/${{ github.event.inputs.network }}-${{ github.event.inputs.operation }}-$(date +%Y%m%d-%H%M%S).json"
+            echo "✅ Deployment artifacts saved"
+          else
+            echo "⚠️ No deployment artifacts found in $BROADCAST_DIR/$CHAIN_ID/"
+          fi
+
+      - name: Commit deployment data
+        if: github.event.inputs.dry_run == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deployments.json
-          git diff --staged --quiet || git commit -m "chore: update deployment addresses for ${{ github.event.inputs.network }}"
-          git push
+          git add deployments/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            OP_TYPE="${{ github.event.inputs.operation }}"
+            VERSION="${{ github.event.inputs.version }}"
+            git commit -m "chore(${OP_TYPE}): ${{ github.event.inputs.network }} ${OP_TYPE} ${VERSION} $(date +%Y-%m-%d)"
+            git push origin development
+            echo "✅ Deployment data committed"
+          fi
