@@ -1,3 +1,4 @@
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
@@ -44,14 +45,32 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
 
     error OrganizationAlreadyExists();
     error OrganizationNotFound();
+    error OrganizationInactive();
     error EmployeeNotFound();
     error NotOrganizationOwner();
     error InvalidAddress();
     error InvalidSalary();
+    error InvalidAdmin();
+    error InvalidOrganizationName();
     error EmployeeAlreadyExists();
     error EmployeeNotActive();
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    modifier onlyOrgOwner(uint256 orgId) {
+        Organization storage org = _organizations[orgId];
+        if (org.id == 0) revert OrganizationNotFound();
+        if (org.owner != msg.sender) revert NotOrganizationOwner();
+        if (!org.active) revert OrganizationInactive();
+        _;
+    }
+
     function initialize(address admin) public initializer {
+        if (admin == address(0)) revert InvalidAdmin();
+
         __UUPSUpgradeable_init();
         __AccessControl_init();
         __ReentrancyGuard_init();
@@ -62,6 +81,7 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
 
     function registerOrganization(string calldata name, string calldata metadata) external returns (uint256) {
         if (_ownerToOrg[msg.sender] != 0) revert OrganizationAlreadyExists();
+        if (bytes(name).length == 0) revert InvalidOrganizationName();
 
         unchecked {
             ++_orgIdCounter;
@@ -70,36 +90,29 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
         uint256 orgId = _orgIdCounter;
 
         _organizations[orgId] = Organization({
-            id: orgId, owner: msg.sender, name: name, metadata: metadata, createdAt: block.timestamp, active: true
+            id: orgId,
+            owner: msg.sender,
+            name: name,
+            metadata: metadata,
+            createdAt: block.timestamp,
+            active: true
         });
 
         _ownerToOrg[msg.sender] = orgId;
         _grantRole(ORG_OWNER_ROLE, msg.sender);
 
         emit OrganizationRegistered(orgId, msg.sender, name);
-
         return orgId;
     }
 
-    function setOrgMetadata(uint256 orgId, string calldata metadata) external {
-        Organization storage org = _organizations[orgId];
-
-        if (org.id == 0) revert OrganizationNotFound();
-        if (org.owner != msg.sender) revert NotOrganizationOwner();
-
-        org.metadata = metadata;
-
+    function setOrgMetadata(uint256 orgId, string calldata metadata) external onlyOrgOwner(orgId) {
+        _organizations[orgId].metadata = metadata;
         emit OrganizationMetadataUpdated(orgId, metadata);
     }
 
-    function addEmployee(uint256 orgId, address wallet, uint256 baseSalary) external returns (uint256) {
+    function addEmployee(uint256 orgId, address wallet, uint256 baseSalary) external onlyOrgOwner(orgId) returns (uint256) {
         if (wallet == address(0)) revert InvalidAddress();
         if (baseSalary == 0) revert InvalidSalary();
-
-        Organization storage org = _organizations[orgId];
-
-        if (org.id == 0) revert OrganizationNotFound();
-        if (org.owner != msg.sender) revert NotOrganizationOwner();
         if (_isOrgEmployee[wallet][orgId]) revert EmployeeAlreadyExists();
 
         unchecked {
@@ -109,25 +122,25 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
         uint256 employeeId = _employeeIdCounter;
 
         _employees[employeeId] = Employee({
-            id: employeeId, orgId: orgId, wallet: wallet, baseSalary: baseSalary, addedAt: block.timestamp, active: true
+            id: employeeId,
+            orgId: orgId,
+            wallet: wallet,
+            baseSalary: baseSalary,
+            addedAt: block.timestamp,
+            active: true
         });
 
         _orgEmployees[orgId].push(employeeId);
         _isOrgEmployee[wallet][orgId] = true;
 
         emit EmployeeAdded(orgId, employeeId, wallet, baseSalary);
-
         return employeeId;
     }
 
-    function deactivateEmployee(uint256 orgId, uint256 employeeId) external {
-        Organization storage org = _organizations[orgId];
+    function deactivateEmployee(uint256 orgId, uint256 employeeId) external onlyOrgOwner(orgId) {
         Employee storage employee = _employees[employeeId];
 
-        if (org.id == 0) revert OrganizationNotFound();
-        if (org.owner != msg.sender) revert NotOrganizationOwner();
-        if (employee.id == 0) revert EmployeeNotFound();
-        if (employee.orgId != orgId) revert EmployeeNotFound();
+        if (employee.id == 0 || employee.orgId != orgId) revert EmployeeNotFound();
         if (!employee.active) revert EmployeeNotActive();
 
         employee.active = false;
@@ -157,10 +170,11 @@ contract BaseRollV1 is Initializable, UUPSUpgradeable, AccessControlUpgradeable,
     }
 
     function version() external pure returns (string memory) {
-        return "1.0.0";
+        return "1.0.1";
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) { }
+    function _authorizeUpgrade(address) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 
     uint256[50] private __gap;
 }
+```
